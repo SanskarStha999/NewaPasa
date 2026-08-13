@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewaMart</title>
+    <link rel="stylesheet" href="tailwind.css">
+</head>
+<body>
+    <div class="flex justify-between items-center bg-green-700 p-6 sticky top-0 z-50">
+        <div>
+            <p class="text-2xl font-bold text-white">NewaMart</p>
+        </div>
+        <div class="flex-1 flex gap-15 justify-center text-white ml-45 text-md">
+            <a href="#" class="hover:text-green-300 transition">Home</a>
+            <a href="#" class="hover:text-green-300 transition">Shop</a>
+            <a href="#" class="hover:text-green-300 transition">Categories</a>
+            <a href="#" class="hover:text-green-300 transition">About</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <input type="text" id="search-input" oninput="searchProducts()" placeholder="search..." class="px-3 py-1.5 rounded-lg bg-white text-black w-60 mr-15 focus:outline-none focus:ring-2 focus:ring-green-400">
+            <button onclick="toggleCart()" class="text-white mr-10 text-2xl relative transition">🛒
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+            </button>
+            <button id="account-btn" onclick="openAuth()" class="text-white hover:text-green-200 mr-10 transition">Account</button>
+
+            <div class="flex flex-col gap-1.5 cursor-pointer">
+                <span class="block w-6 h-0.5 bg-white"></span>
+                <span class="block w-6 h-0.5 bg-white"></span>
+                <span class="block w-6 h-0.5 bg-white"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative bg-[url('assets/images/grocerypic.jpg')] bg-cover bg-center h-screen">
+        <div class="absolute inset-0 bg-black opacity-50"></div>
+
+        <div class="relative z-10 flex flex-col justify-center items-center h-screen text-center text-white">
+            <h1 class="text-6xl font-bold">Fresh Groceries Delivered to Your Door</h1>
+            <p class="text-xl mt-2">Quality produce, everyday prices, straight to your kitchen.</p>
+            <button class="bg-green-600 hover:bg-green-700 transition text-white px-6 py-3 rounded-lg mt-6">Shop Now</button>
+        </div>
+    </div>
+
+    <div class="py-16 px-6">
+        <h2 class="text-3xl font-bold mb-10 text-left">Shop by Category:</h2>
+
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-6">
+            <div id="cat-all" onclick="filterProducts('all', this)" class="category-btn relative bg-green-100 p-6 rounded-lg text-center hover:bg-green-300 cursor-pointer transition font-semibold">
+                <p class="text-lg">All</p>
+                <span id="count-all" style="display:none" class="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+            </div>
+            <div onclick="filterProducts('vegetables', this)" class="category-btn relative bg-green-100 p-6 rounded-lg text-center hover:bg-green-300 cursor-pointer transition font-semibold">
+                <p class="text-lg">Vegetables</p>
+                <span id="count-vegetables" style="display:none" class="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+            </div>
+            <div onclick="filterProducts('dairy', this)" class="category-btn relative bg-green-100 p-6 rounded-lg text-center hover:bg-green-300 cursor-pointer transition font-semibold">
+                <p class="text-lg">Dairy</p>
+                <span id="count-dairy" style="display:none" class="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+            </div>
+            <div onclick="filterProducts('bakery', this)" class="category-btn relative bg-green-100 p-6 rounded-lg text-center hover:bg-green-300 cursor-pointer transition font-semibold">
+                <p class="text-lg">Bakery</p>
+                <span id="count-bakery" style="display:none" class="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+            </div>
+            <div onclick="filterProducts('fruits', this)" class="category-btn relative bg-green-100 p-6 rounded-lg text-center hover:bg-green-300 cursor-pointer transition font-semibold">
+                <p class="text-lg">Fruits</p>
+                <span id="count-fruits" style="display:none" class="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+            </div>
+            <div onclick="filterProducts('eggmeat', this)" class="category-btn relative bg-green-100 p-6 rounded-lg text-center hover:bg-green-300 cursor-pointer transition font-semibold">
+                <p class="text-lg">Egg & Meat</p>
+                <span id="count-eggmeat" style="display:none" class="absolute top-1 right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+            </div>
+        </div>
+    </div>
+
+    <p id="no-results" class="hidden text-center text-gray-500 text-lg py-10">This product is not available in our store.</p>
+
+    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6 px-6">
+
+        <div data-category="fruits" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/apples.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Apples</p>
+            <p class="text-gray-600">$2.99/lb</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('apples-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="apples-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('apples-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Apples', 2.99, 'fruits', 'apples-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="vegetables" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/carrot.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Carrots</p>
+            <p class="text-gray-600">$1.49/lb</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('carrots-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="carrots-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('carrots-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Carrots', 1.49, 'vegetables', 'carrots-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="dairy" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/milk.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Milk</p>
+            <p class="text-gray-600">$3.49</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('milk-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="milk-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('milk-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Milk', 3.49, 'dairy', 'milk-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="bakery" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/bread.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Bread</p>
+            <p class="text-gray-600">$2.19</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('bread-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="bread-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('bread-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Bread', 2.19, 'bakery', 'bread-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="eggmeat" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/eggs.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Eggs</p>
+            <p class="text-gray-600">$4.29</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('eggs-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="eggs-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('eggs-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Eggs', 4.29, 'eggmeat', 'eggs-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="eggmeat" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/chicken.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Chicken Breast</p>
+            <p class="text-gray-600">$6.99/lb</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('chicken-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="chicken-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('chicken-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Chicken Breast', 6.99, 'eggmeat', 'chicken-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="vegetables" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/tomato.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Tomato</p>
+            <p class="text-gray-600">$5.99/lb</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('tomato-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="tomato-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('tomato-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Tomato', 5.99, 'vegetables', 'tomato-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="dairy" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/butter.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Butter</p>
+            <p class="text-gray-600">$15.99/lb</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('butter-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="butter-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('butter-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Butter', 15.99, 'dairy', 'butter-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="bakery" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/muffin.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Muffins</p>
+            <p class="text-gray-600">$8.99/lb</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('muffins-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="muffins-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('muffin-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Muffins', 8.99, 'bakery', 'muffins-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="fruits" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/papaya.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Papaya</p>
+            <p class="text-gray-600">$7.99/lb</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('papaya-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="papaya-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('papaya-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Papaya', 7.99, 'fruits', 'papaya-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+        <div data-category="eggmeat" class="group product-card bg-white p-4 rounded-lg shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition">
+            <div class="bg-gray-200 h-40 rounded-lg mb-4 bg-[url('assets/images/pork.jpg')] bg-cover bg-center"></div>
+            <p class="font-semibold">Pork</p>
+            <p class="text-gray-600">$12.99/lb</p>
+            <div class="flex items-center justify-center gap-3 mt-3">
+                <button onclick="changeQty('pork-qty', -1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">-</button>
+                <span id="pork-qty" class="w-6 text-center">1</span>
+                <button onclick="changeQty('pork-qty', 1)" class="hover:bg-gray-300 w-7 h-7 rounded transition">+</button>
+            </div>
+            <button onclick="addToCart('Pork', 12.99, 'eggmeat', 'pork-qty')" class="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-lg mt-3 w-full">Add to Cart</button>
+        </div>
+
+    </div>
+
+    <div class="bg-green-600 text-white text-center py-10 px-6 my-10">
+        <h2 class="text-3xl font-bold">🔥 20% Off This Weekend Only!</h2>
+        <p class="mt-2 text-lg">Use code <span class="font-bold">WEEKEND20</span> at checkout</p>
+        <button class="bg-white text-black hover:bg-gray-100 transition px-6 py-2 rounded-lg mt-4 font-semibold">Shop the Sale</button>
+    </div>
+
+    <div class="py-8 px-6 text-center">
+        <h2 class="text-3xl font-bold mb-10">Why Shop With Us</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+            <div>
+                <p class="text-4xl mb-3">🚚</p>
+                <h3 class="text-xl font-semibold mb-2">Free Delivery</h3>
+                <p class="text-gray-600">Free delivery on all orders over $80, straight to your door.</p>
+            </div>
+
+            <div>
+                <p class="text-4xl mb-3">🥬</p>
+                <h3 class="text-xl font-semibold mb-2">Fresh Guarantee</h3>
+                <p class="text-gray-600">If it's not fresh, we'll replace it — no questions asked.</p>
+            </div>
+
+            <div>
+                <p class="text-4xl mb-3">↩️</p>
+                <h3 class="text-xl font-semibold mb-2">Easy Returns</h3>
+                <p class="text-gray-600">Not happy with an item? Return it within 2 days for a refund.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="bg-gray-900 text-white py-12 px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+
+            <div>
+                <h3 class="font-bold text-lg mb-4">NewaMart</h3>
+                <p class="text-gray-400">Fresh groceries delivered to your door, <br>every day.</p>
+            </div>
+
+            <div>
+                <h3 class="font-bold text-lg mb-4">Shop</h3>
+                <ul class="text-gray-400 space-y-2">
+                    <li><a href="#" class="hover:text-white transition">Fruits</a></li>
+                    <li><a href="#" class="hover:text-white transition">Vegetables</a></li>
+                    <li><a href="#" class="hover:text-white transition">Dairy</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="font-bold text-lg mb-4">Customer Service</h3>
+                <ul class="text-gray-400 space-y-2">
+                    <li><a href="#" class="hover:text-white transition">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-white transition">Returns</a></li>
+                    <li><a href="#" class="hover:text-white transition">FAQ</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="font-bold text-lg mb-4">Follow Us</h3>
+                <div class="flex gap-4 text-gray-200">
+                    <a href="#" class="hover:text-green-400 transition">Facebook</a>
+                    <a href="#" class="hover:text-green-400 transition">Instagram</a>
+                    <a href="#" class="hover:text-green-400 transition">Twitter</a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="text-center text-gray-500 mt-10 pt-6 border-t border-gray-700">
+            © 2026 NewaMart. All rights reserved.
+        </div>
+    </div>
+
+    <!-- Cart Panel -->
+    <div id="cart-panel" class="fixed top-0 right-0 h-full w-80 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 p-6 overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold">Your Cart</h2>
+            <button onclick="toggleCart()" class="text-2xl">&times;</button>
+        </div>
+        <div id="cart-items"></div>
+        <div class="mt-6 pt-4 border-t font-bold text-lg flex justify-between">
+            <span>Total:</span>
+            <span id="cart-total">$0.00</span>
+        </div>
+        <button onclick="checkout()" class="bg-green-600 hover:bg-green-700 transition text-white w-full py-2 rounded-lg mt-4">Checkout</button>
+    </div>
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black opacity-0 pointer-events-none transition-opacity duration-300 z-40"></div>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class=" hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-sm text-center">
+            <h2 class="text-2xl font-bold mb-4">Order Confirmed!</h2>
+            <p class="text-gray-600 mb-6">Thanks for shopping with NewaMart. Your groceries are on the way.</p>
+            <button onclick="closeCheckout()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition">Close</button>
+        </div>
+    </div>
+
+
+    <!-- Auth Modal -->
+<div id="auth-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-8 max-w-sm w-full text-center relative">
+        <button onclick="closeAuth()" class="absolute top-3 right-4 text-2xl">&times;</button>
+
+        <div class="flex justify-center gap-6 mb-6">
+            <button id="tab-login" onclick="switchAuthTab('login')" class="font-semibold pb-1 border-b-2 border-green-600">Login</button>
+            <button id="tab-signup" onclick="switchAuthTab('signup')" class="font-semibold pb-1 text-gray-400 border-b-2 border-transparent">Sign Up</button>
+        </div>
+
+        <p id="auth-error" class="hidden text-red-600 text-sm mb-3"></p>
+
+        <input type="text" id="auth-identifier" placeholder="Email or Phone" class="w-full border rounded-lg px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-green-400">
+        <input type="password" id="auth-password" placeholder="Password" class="w-full border rounded-lg px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-green-400">
+
+        <div id="signup-name-field" class="hidden">
+            <input type="text" id="auth-name" placeholder="Full Name" class="w-full border rounded-lg px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-green-400">
+        </div>
+
+        <button id="auth-submit-btn" onclick="submitAuth()" class="bg-green-600 hover:bg-green-700 transition text-white w-full py-2 rounded-lg mt-2">Login</button>
+    </div>
+</div>
+
+            <!-- Profile Modal -->
+<div id="profile-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-8 max-w-sm w-full text-center relative">
+        <button onclick="closeProfile()" class="absolute top-3 right-4 text-2xl">&times;</button>
+
+        <h2 class="text-xl font-bold mb-1" id="profile-name">Sanskar</h2>
+        <p class="text-gray-500 mb-6" id="profile-identifier">sanskar@email.com</p>
+
+        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 transition text-white w-full py-2 rounded-lg">Log Out</button>
+    </div>
+</div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg transition-opacity duration-300 z-50">
+        Added to cart!
+    </div>
+
+    <script>
+        let cart = [];
+        let currentUser = null;
+        let authMode = 'login';
+        const categoryList = ['vegetables', 'dairy', 'bakery', 'fruits', 'eggmeat'];
+
+        function changeQty(spanId, delta) {
+            const span = document.getElementById(spanId);
+            if (!span) return;
+            let qty = parseInt(span.textContent) || 1;
+            qty = Math.max(1, qty + delta);
+            span.textContent = qty;
+        }
+
+        function addToCart(name, price, category, spanId) {
+            const qty = parseInt(document.getElementById(spanId).textContent);
+            const existing = cart.find(function (item) { return item.name === name; });
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({ name: name, price: price, qty: qty, category: category });
+            }
+            document.getElementById(spanId).textContent = 1;
+            updateCartUI();
+            updateCategoryCounts();
+            showToast();
+            saveCart();
+        }
+
+        function increaseQty(name) {
+            const item = cart.find(function (i) { return i.name === name; });
+            if (item) item.qty++;
+            updateCartUI();
+            updateCategoryCounts();
+            saveCart();
+        }
+
+        function decreaseQty(name) {
+            const item = cart.find(function (i) { return i.name === name; });
+            if (item) {
+                item.qty--;
+                if (item.qty <= 0) {
+                    cart = cart.filter(function (i) { return i.name !== name; });
+                }
+            }
+            updateCartUI();
+            updateCategoryCounts();
+            saveCart();
+        }
+
+        function deleteFromCart(name) {
+            cart = cart.filter(function (item) { return item.name !== name; });
+            updateCartUI();
+            updateCategoryCounts();
+            saveCart();
+        }
+
+        function saveCart() {
+    localStorage.setItem('newamart-cart', JSON.stringify(cart));
+}
+
+function loadCart() {
+    const saved = localStorage.getItem('newamart-cart');
+    if (saved) cart = JSON.parse(saved);
+}
+
+function loadUser() {
+    const saved = localStorage.getItem('newamart-current-user');
+    if (saved) {
+        currentUser = JSON.parse(saved);
+        updateAccountButton();
+    }
+}
+
+function updateAccountButton() {
+    const btn = document.getElementById('account-btn');
+    if (currentUser) {
+        btn.textContent = 'Hi, ' + currentUser.name;
+        btn.onclick = openProfile;
+    } else {
+        btn.textContent = 'Account';
+        btn.onclick = openAuth;
+    }
+}
+
+function openProfile() {
+    document.getElementById('profile-name').textContent = currentUser.name;
+    document.getElementById('profile-identifier').textContent = currentUser.identifier;
+    document.getElementById('profile-modal').classList.remove('hidden');
+}
+
+function closeProfile() {
+    document.getElementById('profile-modal').classList.add('hidden');
+}
+
+function openAuth() {
+    document.getElementById('auth-modal').classList.remove('hidden');
+}
+
+function closeAuth() {
+    document.getElementById('auth-modal').classList.add('hidden');
+    document.getElementById('auth-error').classList.add('hidden');
+}
+
+function switchAuthTab(mode) {
+    authMode = mode;
+    document.getElementById('tab-login').classList.toggle('border-green-600', mode === 'login');
+    document.getElementById('tab-login').classList.toggle('text-gray-400', mode !== 'login');
+    document.getElementById('tab-signup').classList.toggle('border-green-600', mode === 'signup');
+    document.getElementById('tab-signup').classList.toggle('text-gray-400', mode !== 'signup');
+    document.getElementById('signup-name-field').classList.toggle('hidden', mode !== 'signup');
+    document.getElementById('auth-submit-btn').textContent = mode === 'login' ? 'Login' : 'Sign Up';
+    document.getElementById('auth-error').classList.add('hidden');
+}
+
+function getUsers() {
+    const saved = localStorage.getItem('newamart-users');
+    return saved ? JSON.parse(saved) : [];
+}
+
+function saveUsers(users) {
+    localStorage.setItem('newamart-users', JSON.stringify(users));
+}
+
+function showAuthError(message) {
+    const errorEl = document.getElementById('auth-error');
+    errorEl.textContent = message;
+    errorEl.classList.remove('hidden');
+}
+
+function submitAuth() {
+    const identifier = document.getElementById('auth-identifier').value.trim();
+    const password = document.getElementById('auth-password').value;
+    if (!identifier || !password) { showAuthError('Please fill in all fields.'); return; }
+    const users = getUsers();
+    if (authMode === 'signup') {
+        const name = document.getElementById('auth-name').value.trim();
+        if (!name) { showAuthError('Please enter your name.'); return; }
+        const exists = users.find(function (u) { return u.identifier === identifier; });
+        if (exists) { showAuthError('An account already exists with this email/phone.'); return; }
+        users.push({ name: name, identifier: identifier, password: password });
+        saveUsers(users);
+        currentUser = { name: name, identifier: identifier };
+    } else {
+        const match = users.find(function (u) { return u.identifier === identifier && u.password === password; });
+        if (!match) { showAuthError('Incorrect email/phone or password.'); return; }
+        currentUser = { name: match.name, identifier: match.identifier };
+    }
+    localStorage.setItem('newamart-current-user', JSON.stringify(currentUser));
+    updateAccountButton();
+    closeAuth();
+}
+
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('newamart-current-user');
+    updateAccountButton();
+    closeProfile();
+}
+        function updateCategoryCounts() {
+            let allTotal = 0;
+
+            categoryList.forEach(function (cat) {
+                const total = cart
+                    .filter(function (item) { return item.category === cat; })
+                    .reduce(function (sum, item) { return sum + item.qty; }, 0);
+
+                allTotal += total;
+
+                const badge = document.getElementById('count-' + cat);
+                badge.textContent = total;
+                badge.style.display = total === 0 ? 'none' : 'flex';
+            });
+
+            const allBadge = document.getElementById('count-all');
+            allBadge.textContent = allTotal;
+            allBadge.style.display = allTotal === 0 ? 'none' : 'flex';
+        }
+
+        function filterProducts(category, clickedEl) {
+            document.querySelectorAll('.product-card').forEach(function (product) {
+                product.style.display = (category === 'all' || product.dataset.category === category) ? '' : 'none';
+            });
+
+            document.querySelectorAll('.category-btn').forEach(function (btn) {
+                btn.classList.remove('bg-green-300', 'shadow-md', 'text-green-800');
+            });
+            if (clickedEl) {
+                clickedEl.classList.add('bg-green-300', 'shadow-md', 'text-green-800');
+            }
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const noResultsMsg = document.getElementById('no-results');
+            let matchCount = 0;
+
+            document.querySelectorAll('.product-card').forEach(function (product) {
+                const name = product.querySelector('p.font-semibold').textContent.toLowerCase();
+                const matches = name.includes(query);
+                product.style.display = matches ? '' : 'none';
+                if (matches) matchCount++;
+            });
+
+            noResultsMsg.classList.toggle('hidden', matchCount > 0);
+        }
+
+        function updateCartUI() {
+            const cartItemsEl = document.getElementById('cart-items');
+            const cartTotalEl = document.getElementById('cart-total');
+            const cartCountEl = document.getElementById('cart-count');
+
+            cartItemsEl.innerHTML = '';
+            let total = 0;
+            let totalQty = 0;
+
+            if (cart.length === 0) {
+                cartItemsEl.innerHTML = '<p class="text-gray-500 text-center py-6">Your cart is empty.</p>';
+            }
+
+            cart.forEach(function (item) {
+                total += item.price * item.qty;
+                totalQty += item.qty;
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'mb-4 pb-4 border-b';
+
+                itemDiv.innerHTML =
+                    '<div class="flex justify-between items-center mb-2">' +
+                    '<div>' +
+                    '<p class="font-semibold">' + item.name + ' x' + item.qty + '</p>' +
+                    '<p class="text-gray-500 text-sm">$' + item.price.toFixed(2) + ' each — $' + (item.price * item.qty).toFixed(2) + '</p>' +
+                    '</div>' +
+                    '<button onclick="deleteFromCart(\'' + item.name + '\')" class="text-red-600 hover:text-red-800 text-sm font-semibold">🗑 Delete</button>' +
+                    '</div>' +
+                    '<div class="flex items-center gap-2">' +
+                    '<button onclick="decreaseQty(\'' + item.name + '\')" class="bg-gray-200 hover:bg-gray-300 w-6 h-6 rounded transition">-</button>' +
+                    '<span class="w-5 text-center">' + item.qty + '</span>' +
+                    '<button onclick="increaseQty(\'' + item.name + '\')" class="bg-gray-200 hover:bg-gray-300 w-6 h-6 rounded transition">+</button>' +
+                    '</div>';
+
+                cartItemsEl.appendChild(itemDiv);
+            });
+
+            cartTotalEl.textContent = '$' + total.toFixed(2);
+            cartCountEl.textContent = totalQty;
+        }
+
+        function toggleCart() {
+            const panel = document.getElementById('cart-panel');
+            const overlay = document.getElementById('cart-overlay');
+            const isOpen = !panel.classList.contains('translate-x-full');
+
+            if (isOpen) {
+                panel.classList.add('translate-x-full');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-50');
+            } else {
+                panel.classList.remove('translate-x-full');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-50');
+            }
+        }
+
+        function checkout() {
+            if (cart.length === 0) return;
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            toggleCart();
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+            cart = [];
+            updateCartUI();
+            updateCategoryCounts();
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('hidden');
+            setTimeout(function () {
+                toast.classList.add('hidden');
+            }, 1500);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+    loadCart();
+    updateCartUI();
+    updateCategoryCounts();
+    filterProducts('all', document.getElementById('cat-all'));
+    loadUser();
+});
+    </script>
+
+</body>
+</html>
