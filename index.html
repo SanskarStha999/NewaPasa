@@ -338,8 +338,8 @@
     <div class="bg-white rounded-lg p-8 max-w-sm w-full text-center relative">
         <button onclick="closeProfile()" class="absolute top-3 right-4 text-2xl">&times;</button>
 
-        <h2 class="text-xl font-bold mb-1" id="profile-name">Sanskar</h2>
-        <p class="text-gray-500 mb-6" id="profile-identifier">sanskar@email.com</p>
+        <h2 class="text-xl font-bold mb-1" id="profile-name"></h2>
+        <p class="text-gray-500 mb-6" id="profile-identifier"></p>
 
         <button onclick="logout()" class="bg-red-600 hover:bg-red-700 transition text-white w-full py-2 rounded-lg">Log Out</button>
     </div>
@@ -445,8 +445,11 @@ function closeProfile() {
     document.getElementById('profile-modal').classList.add('hidden');
 }
 
-function openAuth() {
+function openAuth(message) {
     document.getElementById('auth-modal').classList.remove('hidden');
+    if (typeof message === 'string') {
+        showAuthError(message);
+    }
 }
 
 function closeAuth() {
@@ -615,10 +618,17 @@ function logout() {
         }
 
         function checkout() {
-            if (cart.length === 0) return;
-            document.getElementById('checkout-modal').classList.remove('hidden');
-            toggleCart();
-        }
+    if (cart.length === 0) return;
+
+    if (!currentUser) {
+        toggleCart();
+        openAuth('Please log in or sign up to checkout.');
+        return;
+    }
+
+    document.getElementById('checkout-modal').classList.remove('hidden');
+    toggleCart();
+}
 
         function closeCheckout() {
             document.getElementById('checkout-modal').classList.add('hidden');
